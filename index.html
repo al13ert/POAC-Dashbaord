@@ -7,11 +7,21 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ===== ACRE LIGHT FONT ===== */
+        @font-face {
+            font-family: 'Acre Light';
+            src: local('Acre Light'), local('Acre-Light'),
+                 url('https://cdn.jsdelivr.net/fontsource/fonts/montserrat@v25/latin-300.woff2') format('woff2');
+            font-weight: 300;
+            font-style: normal;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Acre Light', 'Acre', 'Montserrat', -apple-system, BlinkMacSystemFont, Arial, sans-serif !important;
+            font-weight: 300;
         }
         :root {
             --orange: #e67e22;
@@ -145,6 +155,16 @@
             letter-spacing: 1px;
             text-transform: uppercase;
             border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            overflow-y: hidden;
         }
         .task-item {
             background: #1a1a22;
@@ -153,6 +173,7 @@
             border-radius: 3px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 0.8rem;
         }
         .task-status {
@@ -162,6 +183,7 @@
             padding: 2px 6px;
             border-radius: 3px;
             font-weight: 700;
+            text-transform: uppercase;
         }
         .widget-row {
             background: #1a1a22;
@@ -264,13 +286,15 @@
 
             <!-- BOTTOM CARDS -->
             <div class="bottom-row">
+                <!-- NOTION LIVE SYNC CARD -->
                 <div class="card">
-                    <div class="card-header">📌 Current Tasks</div>
-                    <div class="task-item"><span>Brochure</span><span class="task-status">In Progress</span></div>
-                    <div class="task-item"><span>Website</span><span class="task-status">In Progress</span></div>
-                    <div class="task-item"><span>XHS Posts</span><span class="task-status">In Progress</span></div>
-                    <div class="task-item"><span>Social Calendar</span><span class="task-status">In Progress</span></div>
-                    <div class="task-item"><span>Website Dev</span><span class="task-status">In Progress</span></div>
+                    <div class="card-header">
+                        <span>📌 Current Tasks</span>
+                        <span style="font-size: 0.6rem; color: #fff; opacity: 0.85;">NOTION SYNC</span>
+                    </div>
+                    <div class="task-list" id="task-container">
+                        <div style="color:#888;font-size:0.8rem;text-align:center;margin-top:20px;">Fetching tasks...</div>
+                    </div>
                 </div>
 
                 <div class="card">
@@ -291,7 +315,7 @@
 
                 <div class="card">
                     <div class="card-header">🌤 5-Day Forecast</div>
-                    <div id="forecast-container">
+                    <div id="forecast-container" style="display: flex; flex-direction: column; gap: 6px;">
                         <div style="color:#888;font-size:0.8rem;text-align:center;margin-top:20px;">Loading...</div>
                     </div>
                 </div>
@@ -351,6 +375,66 @@
         }
         fetchWeather();
         setInterval(fetchWeather, 600000);
+
+        // ===== NOTION API SYNC =====
+        function fetchNotionTasks() {
+            const NOTION_KEY = "ntn_ia8718822127mQNzPA2Gris2PO2YgYHobqIRHSYemb24bp";
+            const DATABASE_ID = "181033f7dde480198d96dc09103be618";
+            
+            const targetUrl = "https://api.notion.com/v1/databases/" + DATABASE_ID + "/query";
+            const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(targetUrl);
+
+            fetch(proxyUrl, {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + NOTION_KEY,
+                    "Notion-Version": "2022-06-28",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ page_size: 5 })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.results && data.results.length > 0) {
+                    const container = document.getElementById("task-container");
+                    container.innerHTML = "";
+                    data.results.forEach(page => {
+                        const props = page.properties;
+                        let title = "Untitled";
+                        if (props.Name && props.Name.title && props.Name.title.length > 0) {
+                            title = props.Name.title[0].plain_text;
+                        } else if (props.Task && props.Task.title && props.Task.title.length > 0) {
+                            title = props.Task.title[0].plain_text;
+                        }
+
+                        let status = "In Progress";
+                        if (props.Status && props.Status.status) {
+                            status = props.Status.status.name;
+                        } else if (props.Status && props.Status.select) {
+                            status = props.Status.select.name;
+                        }
+
+                        const div = document.createElement("div");
+                        div.className = "task-item";
+                        div.innerHTML = `<span>${title}</span><span class="task-status">${status}</span>`;
+                        container.appendChild(div);
+                    });
+                }
+            })
+            .catch(err => {
+                console.log("Notion API fetch error, using fallback tasks:", err);
+                const container = document.getElementById("task-container");
+                container.innerHTML = `
+                    <div class="task-item"><span>Brochure</span><span class="task-status">In Progress</span></div>
+                    <div class="task-item"><span>Website</span><span class="task-status">In Progress</span></div>
+                    <div class="task-item"><span>XHS Posts</span><span class="task-status">In Progress</span></div>
+                    <div class="task-item"><span>Social Calendar</span><span class="task-status">In Progress</span></div>
+                    <div class="task-item"><span>Website Dev</span><span class="task-status">In Progress</span></div>
+                `;
+            });
+        }
+        fetchNotionTasks();
+        setInterval(fetchNotionTasks, 60000);
 
         // ===== TICKER DATA =====
         const HK = [
@@ -465,7 +549,7 @@
                 });
             }
 
-            // duplicate for seamless loop
+            // Duplicate for seamless loop
             document.getElementById('ticker-content').innerHTML = html + html;
         }
 
