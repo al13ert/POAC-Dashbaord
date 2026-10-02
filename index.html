@@ -40,13 +40,13 @@
             display: grid;
             width: 100vw;
             height: 100vh;
-            grid-template-rows: 48px 1fr 38px;
+            grid-template-rows: 56px 1fr 44px;
             gap: 6px;
             padding: 6px;
             background: #000;
         }
 
-        /* ===== WHITE TOP BANNER WITH WEATHER INTEGRATED ===== */
+        /* ===== WHITE TOP BANNER ===== */
         .top-banner {
             display: flex;
             align-items: center;
@@ -54,19 +54,19 @@
             background: #ffffff;
             border: 2px solid var(--green);
             border-radius: 6px;
-            padding: 0 14px;
+            padding: 0 16px;
         }
         .brand-wrap {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         .brand-wrap img {
-            height: 32px;
+            height: 38px;
             object-fit: contain;
         }
         .brand-text {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             font-weight: 700;
             letter-spacing: 2px;
             color: #111;
@@ -75,25 +75,28 @@
         .banner-right {
             display: flex;
             align-items: center;
-            gap: 18px;
-            font-size: 0.88rem;
+            gap: 20px;
+            font-size: 1.1rem;
             color: #111;
             font-weight: 600;
         }
         .weather-pill {
             background: #f0f2f5;
-            padding: 4px 10px;
+            padding: 5px 14px;
             border-radius: 4px;
             color: #222;
             font-weight: 600;
             border: 1px solid #ddd;
+            font-size: 1.05rem;
         }
         #clock-display {
             background: var(--orange);
             color: #fff;
-            padding: 3px 10px;
+            padding: 4px 14px;
             border-radius: 4px;
             font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 1px;
         }
 
         /* ===== MAIN AREA ===== */
@@ -127,14 +130,14 @@
         }
         .stream-label {
             position: absolute;
-            top: 8px;
-            left: 8px;
+            top: 10px;
+            left: 10px;
             background: var(--orange);
             color: #fff;
-            font-size: 0.7rem;
+            font-size: 0.85rem;
             font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 3px;
+            padding: 4px 10px;
+            border-radius: 4px;
             z-index: 2;
         }
 
@@ -149,17 +152,17 @@
             background: var(--card-bg);
             border: 2px solid var(--green);
             border-radius: 6px;
-            padding: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             overflow: hidden;
         }
         .card-header {
             background: var(--orange);
             color: #fff;
-            padding: 5px 10px;
-            font-size: 0.8rem;
+            padding: 6px 12px;
+            font-size: 0.95rem;
             font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -171,40 +174,41 @@
         .content-box {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             flex: 1;
             overflow-y: hidden;
         }
         .task-item {
             background: #1a1a22;
-            border-left: 3px solid var(--orange);
-            padding: 7px 10px;
-            border-radius: 3px;
+            border-left: 4px solid var(--orange);
+            padding: 9px 12px;
+            border-radius: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.8rem;
+            font-size: 0.95rem;
+            font-weight: 400;
         }
         .task-status {
-            font-size: 0.65rem;
-            background: rgba(230, 126, 34, 0.2);
+            font-size: 0.75rem;
+            background: rgba(230, 126, 34, 0.25);
             color: var(--orange);
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 3px;
             font-weight: 700;
             text-transform: uppercase;
         }
         .news-item {
             background: #1a1a22;
-            border-left: 3px solid var(--green);
-            padding: 6px 8px;
-            border-radius: 3px;
+            border-left: 4px solid var(--green);
+            padding: 8px 10px;
+            border-radius: 4px;
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
         }
         .news-title {
-            font-size: 0.75rem;
+            font-size: 0.9rem;
             font-weight: 600;
             color: #fff;
             white-space: nowrap;
@@ -212,8 +216,9 @@
             text-overflow: ellipsis;
         }
         .news-meta {
-            font-size: 0.6rem;
-            color: #888;
+            font-size: 0.72rem;
+            color: #aaa;
+            font-weight: 600;
         }
 
         /* ROTATING INSPIRATION PANEL */
@@ -221,30 +226,31 @@
             background: #1a1a22;
             border: 1px solid var(--border);
             border-radius: 4px;
-            padding: 12px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             height: 100%;
             text-align: center;
-            gap: 8px;
+            gap: 10px;
         }
         .quote-category {
-            font-size: 0.65rem;
+            font-size: 0.8rem;
             color: var(--orange);
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1.5px;
         }
         .quote-text {
-            font-size: 0.85rem;
+            font-size: 1.05rem;
             color: #ffffff;
-            line-height: 1.35;
+            line-height: 1.4;
             font-style: italic;
+            font-weight: 400;
         }
         .quote-author {
-            font-size: 0.7rem;
-            color: #aaa;
+            font-size: 0.85rem;
+            color: #bbb;
             font-weight: 600;
         }
 
@@ -260,9 +266,9 @@
         .ticker-label {
             background: var(--orange);
             color: #fff;
-            font-size: 0.7rem;
+            font-size: 0.85rem;
             font-weight: 800;
-            padding: 0 12px;
+            padding: 0 16px;
             height: 100%;
             display: flex;
             align-items: center;
@@ -278,20 +284,20 @@
             display: inline-block;
             padding-left: 100%;
             animation: scroll 75s linear infinite;
-            font-size: 0.85rem;
+            font-size: 1rem;
             font-weight: 600;
         }
         .ticker-content .item {
-            margin-right: 36px;
+            margin-right: 42px;
             display: inline-block;
         }
         .ticker-content .up { color: #2ecc71; }
         .ticker-content .down { color: #e74c3c; }
-        .ticker-content .name { color: #bbb; margin-right: 4px; }
+        .ticker-content .name { color: #bbb; margin-right: 6px; }
         .ticker-content .section {
             color: var(--orange);
             font-weight: 800;
-            margin-right: 8px;
+            margin-right: 10px;
         }
         @keyframes scroll {
             0%   { transform: translateX(0); }
@@ -302,7 +308,7 @@
 <body>
     <div class="dashboard">
 
-        <!-- WHITE TOP BANNER (WITH WEATHER & TIME) -->
+        <!-- WHITE TOP BANNER -->
         <div class="top-banner">
             <div class="brand-wrap">
                 <img src="logo.png" alt="Logo"
@@ -336,10 +342,10 @@
                 <div class="card">
                     <div class="card-header">
                         <span>📌 Current Tasks</span>
-                        <span style="font-size: 0.6rem; color: #fff; opacity: 0.85;">NOTION SYNC</span>
+                        <span style="font-size: 0.7rem; color: #fff; opacity: 0.85;">NOTION SYNC</span>
                     </div>
                     <div class="content-box" id="task-container">
-                        <div style="color:#888;font-size:0.8rem;text-align:center;margin-top:20px;">Fetching tasks...</div>
+                        <div style="color:#888;font-size:0.9rem;text-align:center;margin-top:20px;">Fetching tasks...</div>
                     </div>
                 </div>
 
@@ -347,10 +353,10 @@
                 <div class="card">
                     <div class="card-header">
                         <span>📰 World & Sports Push</span>
-                        <span style="font-size: 0.6rem; color: #fff; opacity: 0.85;">LIVE RSS</span>
+                        <span style="font-size: 0.7rem; color: #fff; opacity: 0.85;">LIVE RSS</span>
                     </div>
                     <div class="content-box" id="rss-container">
-                        <div style="color:#888;font-size:0.8rem;text-align:center;margin-top:20px;">Loading RSS news...</div>
+                        <div style="color:#888;font-size:0.9rem;text-align:center;margin-top:20px;">Loading RSS news...</div>
                     </div>
                 </div>
 
