@@ -1,1 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        :root {
+            --orange: #e67e22;
+            --green: #27ae60;
+            --card-bg: #121218;
+            --border: #2a2a35;
+        }
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            background: #0a0a0c;
+            color: #fff;
+            overflow: hidden;
+        }
+        .dashboard {
+            display: grid;
+            width: 100vw;
+            height: 100vh;
+            grid-template-rows: 48px 1fr 38px;
+            gap: 6px;
+            padding: 6px;
+            background: #000;
+        }
 
+        /* ===== WHITE TOP BANNER ===== */
+        .top-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 2px solid var(--green);
+            border-radius: 6px;
+            padding: 0 14px;
+        }
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-wrap img {
+            height: 32px;
+            object-fit: contain;
+        }
+        .brand-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #111;
+            display: none;
+        }
+        .banner-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 0.9rem;
+            color: #222;
+            font-weight: 600;
+        }
+        #clock-display {
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        /* ===== MAIN AREA ===== */
+        .main-area {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 6px;
+            min-height: 0;
+        }
+        .streams-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            min-height: 0;
+        }
+        .tv-box {
+            position: relative;
+            background: #000;
+            border: 2px solid var(--green);
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .tv-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+        .stream-label {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: var(--orange);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 3px;
+            z-index: 2;
+        }
+
+        .bottom-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            min-height: 0;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--green);
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: var(--orange);
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 4px;
+        }
+        .task-item {
+            background: #1a1a22;
+            border-left: 3px solid var(--orange);
+            padding: 7px 10px;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+        }
+        .task-status {
+            font-size: 0.65rem;
+            background: rgba(230, 126, 34, 0.2);
+            color: var(--orange);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 700;
+        }
+        .widget-row {
+            background: #1a1a22;
+            padding: 8px 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+        }
+        .forecast-day {
+            background: #1a1a22;
+            padding: 5px 8px;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+        }
+
+        /* ===== TICKER ===== */
+        .ticker-bar {
+            background: #111;
+            border: 2px solid var(--green);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        .ticker-label {
+            background: var(--orange);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 0 12px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+        .ticker-track {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll 80s linear infinite;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .ticker-content .item {
+            margin-right: 36px;
+            display: inline-block;
+        }
+        .ticker-content .up { color: #2ecc71; }
+        .ticker-content .down { color: #e74c3c; }
+        .ticker-content .name { color: #bbb; margin-right: 4px; }
+        .ticker-content .section {
+            color: var(--orange);
+            font-weight: 800;
+            margin-right: 8px;
+        }
+        @keyframes scroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+
+        <!-- WHITE TOP BANNER -->
+        <div class="top-banner">
+            <div class="brand-wrap">
+                <img src="logo.png" alt="Logo"
+                     onerror="this.style.display='none'; document.getElementById('brand-fallback').style.display='inline';">
+                <span id="brand-fallback" class="brand-text">COMMAND CENTER</span>
+            </div>
+            <div class="banner-right">
+                <span id="weather-display">☀ --°C  Hong Kong</span>
+                <span id="clock-display">00:00:00</span>
+            </div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="main-area">
+            <!-- 2 LIVE STREAMS -->
+            <div class="streams-row">
+                <div class="tv-box">
+                    <span class="stream-label">RTHK 32</span>
+                    <video id="tv-1" autoplay muted playsinline></video>
+                </div>
+                <div class="tv-box">
+                    <span class="stream-label">DW English</span>
+                    <video id="tv-2" autoplay muted playsinline></video>
+                </div>
+            </div>
+
+            <!-- BOTTOM CARDS -->
+            <div class="bottom-row">
+                <div class="card">
+                    <div class="card-header">📌 Current Tasks</div>
+                    <div class="task-item"><span>Brochure</span><span class="task-status">In Progress</span></div>
+                    <div class="task-item"><span>Website</span><span class="task-status">In Progress</span></div>
+                    <div class="task-item"><span>XHS Posts</span><span class="task-status">In Progress</span></div>
+                    <div class="task-item"><span>Social Calendar</span><span class="task-status">In Progress</span></div>
+                    <div class="task-item"><span>Website Dev</span><span class="task-status">In Progress</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">🕐 Time & Weather</div>
+                    <div class="widget-row">
+                        <span>Date</span>
+                        <span id="live-date">---</span>
+                    </div>
+                    <div class="widget-row">
+                        <span>☀ Current</span>
+                        <span id="weather-temp">--°C</span>
+                    </div>
+                    <div class="widget-row">
+                        <span>💧 Humidity</span>
+                        <span id="weather-humidity">--%</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">🌤 5-Day Forecast</div>
+                    <div id="forecast-container">
+                        <div style="color:#888;font-size:0.8rem;text-align:center;margin-top:20px;">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TICKER: HK → JP → US → FX -->
+        <div class="ticker-bar">
+            <div class="ticker-label">MARKETS</div>
+            <div class="ticker-track">
+                <div class="ticker-content" id="ticker-content">Loading markets...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock-display').textContent =
+                now.toLocaleTimeString('en-HK', { hour12: false });
+            document.getElementById('live-date').textContent =
+                now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Weather
+        function fetchWeather() {
+            fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en')
+                .then(r => r.json())
+                .then(d => {
+                    if (d.temperature?.data?.[0]) {
+                        document.getElementById('weather-temp').textContent = d.temperature.data[0].value + '°C';
+                        document.getElementById('weather-display').textContent =
+                            '☀ ' + d.temperature.data[0].value + '°C  Hong Kong';
+                    }
+                    if (d.humidity?.data?.[0]) {
+                        document.getElementById('weather-humidity').textContent = d.humidity.data[0].value + '%';
+                    }
+                }).catch(() => {});
+
+            fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=en')
+                .then(r => r.json())
+                .then(d => {
+                    if (!d.weatherForecast) return;
+                    const box = document.getElementById('forecast-container');
+                    box.innerHTML = '';
+                    d.weatherForecast.slice(0, 5).forEach(day => {
+                        const div = document.createElement('div');
+                        div.className = 'forecast-day';
+                        div.innerHTML = `<span>${day.week.substring(0,3)}</span>
+                                         <span>${day.forecastMintemp.value}° – ${day.forecastMaxtemp.value}°</span>`;
+                        box.appendChild(div);
+                    });
+                }).catch(() => {});
+        }
+        fetchWeather();
+        setInterval(fetchWeather, 600000);
+
+        // ===== TICKER DATA =====
+        const HK = [
+            {s:'0700.HK', n:'Tencent'}, {s:'9988.HK', n:'Alibaba'},
+            {s:'0005.HK', n:'HSBC'}, {s:'1299.HK', n:'AIA'},
+            {s:'0941.HK', n:'China Mobile'}, {s:'3690.HK', n:'Meituan'}
+        ];
+        const JP = [
+            {s:'7203.T', n:'Toyota'}, {s:'6758.T', n:'Sony'},
+            {s:'9984.T', n:'SoftBank'}, {s:'7974.T', n:'Nintendo'},
+            {s:'6861.T', n:'Keyence'}, {s:'8306.T', n:'MUFG'}
+        ];
+        const US = [
+            {s:'AAPL', n:'Apple'}, {s:'MSFT', n:'Microsoft'},
+            {s:'NVDA', n:'Nvidia'}, {s:'GOOGL', n:'Google'},
+            {s:'AMZN', n:'Amazon'}, {s:'TSLA', n:'Tesla'},
+            {s:'META', n:'Meta'}
+        ];
+
+        function fmt(price, chg) {
+            const p = price != null ? Number(price).toLocaleString(undefined,{maximumFractionDigits:2}) : '--';
+            const c = chg != null ? (chg>=0?'+':'') + Number(chg).toFixed(2) + '%' : '--';
+            const cls = chg != null ? (chg>=0?'up':'down') : '';
+            return {p, c, cls};
+        }
+
+        function buildItem(code, name, price, chg) {
+            const {p, c, cls} = fmt(price, chg);
+            return `<span class="item"><span class="name">${code} ${name}</span> ${p} <span class="${cls}">${c}</span></span>`;
+        }
+
+        async function fetchYahoo(symbols) {
+            const url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + symbols.join(',');
+            const proxies = [
+                u => u,
+                u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+                u => 'https://corsproxy.io/?' + encodeURIComponent(u)
+            ];
+            for (const make of proxies) {
+                try {
+                    const r = await fetch(make(url));
+                    if (!r.ok) continue;
+                    const data = await r.json();
+                    if (data.quoteResponse?.result) return data.quoteResponse.result;
+                } catch(e) {}
+            }
+            return [];
+        }
+
+        async function fetchFX() {
+            try {
+                const r = await fetch('https://open.er-api.com/v6/latest/USD');
+                const d = await r.json();
+                if (d.rates) return d.rates;
+            } catch(e) {}
+            try {
+                const r = await fetch('https://api.frankfurter.app/latest?from=USD');
+                const d = await r.json();
+                if (d.rates) return d.rates;
+            } catch(e) {}
+            return null;
+        }
+
+        async function updateTicker() {
+            const allSym = [...HK, ...JP, ...US].map(x => x.s);
+            const quotes = await fetchYahoo(allSym);
+            const map = {};
+            quotes.forEach(q => map[q.symbol] = q);
+
+            let html = '';
+
+            // HKEX
+            html += `<span class="item"><span class="section">HKEX</span></span>`;
+            HK.forEach(s => {
+                const q = map[s.s];
+                html += buildItem(s.s.replace('.HK',''), s.n,
+                    q?.regularMarketPrice, q?.regularMarketChangePercent);
+            });
+
+            // Japan
+            html += `<span class="item"><span class="section">JAPAN</span></span>`;
+            JP.forEach(s => {
+                const q = map[s.s];
+                html += buildItem(s.s.replace('.T',''), s.n,
+                    q?.regularMarketPrice, q?.regularMarketChangePercent);
+            });
+
+            // US
+            html += `<span class="item"><span class="section">US</span></span>`;
+            US.forEach(s => {
+                const q = map[s.s];
+                html += buildItem(s.s, s.n,
+                    q?.regularMarketPrice, q?.regularMarketChangePercent);
+            });
+
+            // Currencies
+            html += `<span class="item"><span class="section">FX</span></span>`;
+            const rates = await fetchFX();
+            if (rates) {
+                const pairs = [
+                    {c:'USD/HKD', v: rates.HKD},
+                    {c:'EUR/HKD', v: rates.HKD / (rates.EUR || 1)},
+                    {c:'GBP/HKD', v: rates.HKD / (rates.GBP || 1)},
+                    {c:'JPY/HKD', v: rates.HKD / (rates.JPY || 1) * 100},
+                    {c:'CNY/HKD', v: rates.HKD / (rates.CNY || 1)},
+                    {c:'USD/JPY', v: rates.JPY},
+                    {c:'EUR/USD', v: 1 / (rates.EUR || 1)}
+                ];
+                pairs.forEach(p => {
+                    const val = p.v ? Number(p.v).toFixed(4) : '--';
+                    html += `<span class="item"><span class="name">${p.c}</span> ${val}</span>`;
+                });
+            }
+
+            // duplicate for seamless loop
+            document.getElementById('ticker-content').innerHTML = html + html;
+        }
+
+        updateTicker();
+        setInterval(updateTicker, 60000);
+
+        // Streams
+        function loadStream(id, url) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (Hls.isSupported()) {
+                const hls = new Hls({manifestLoadingTimeOut:15000});
+                hls.loadSource(url);
+                hls.attachMedia(el);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    el.muted = true;
+                    el.play().catch(()=>{});
+                });
+            } else if (el.canPlayType('application/vnd.apple.mpegurl')) {
+                el.src = url;
+                el.muted = true;
+                el.play().catch(()=>{});
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStream('tv-1', 'https://rthktv32-live.akamaized.net/hls/live/2036819/RTHKTV32/master.m3u8');
+            loadStream('tv-2', 'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/master.m3u8');
+        });
+    </script>
+</body>
+</html>
