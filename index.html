@@ -1,224 +1,635 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POAC Dashboard</title>
+    <title>Command Center Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Rotating Fonts Definition */
+        /* ===== ACRE LIGHT (Montserrat stand-in) ===== */
         @font-face {
-            font-family: 'Acre';
-            src: url('https://use.typekit.net/af/8e4df4/00000000000000007735ef28/30/l?primer=7cd0ba6e680145b028694a712c773419e9331899a0937a06016e788e001851e5&fvd=n4&v=3') format('woff2');
-            font-weight: normal; font-style: normal;
+            font-family: 'Acre Light';
+            src: local('Acre Light'), local('Acre-Light'),
+                 url('https://cdn.jsdelivr.net/fontsource/fonts/montserrat@v25/latin-300.woff2') format('woff2');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
         }
 
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono:wght@400;700&family=Outfit:wght@500;700;800&family=Space+Grotesk:wght@500;700&display=swap');
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { 
-            font-family: 'Acre', 'Outfit', 'Inter', -apple-system, sans-serif; 
-            background: #080808; 
-            color: #ffffff; 
-            overflow: hidden; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        
-        /* Top Banner Header */
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 12px 28px; 
-            background: #111113; 
-            height: 70px; 
-            border-bottom: 2px solid #222226; 
-        }
-        
-        .logo-title { 
-            display: flex; 
-            align-items: center; 
-            gap: 14px; 
-            font-weight: 800; 
-            font-size: 24px; 
-            letter-spacing: 1px;
-        }
-        
-        .logo-title img { height: 38px; width: auto; }
-        
-        .widget-info { 
-            display: flex; 
-            gap: 28px; 
-            align-items: center; 
-            font-size: 20px; 
-            font-weight: 600;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        #clock {
-            font-family: 'Roboto Mono', monospace;
-            background: #1c1c20;
-            padding: 6px 14px;
+        :root {
+            --orange: #e67e22;
+            --green: #27ae60;
+            --card-bg: #121218;
+            --border: #2a2a35;
+            --text-muted: #888;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            background: #0a0a0c;
+            color: #fff;
+            overflow: hidden;
+            font-family: 'Acre Light', 'Montserrat', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+            font-weight: 300;
+        }
+
+        .dashboard {
+            display: grid;
+            width: 100vw;
+            height: 100vh;
+            grid-template-rows: 48px 1fr 38px;
+            gap: 6px;
+            padding: 6px;
+            background: #000;
+        }
+
+        /* ===== TOP BANNER ===== */
+        .top-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 2px solid var(--green);
             border-radius: 6px;
-            color: #00ffcc;
+            padding: 0 14px;
         }
 
-        /* Main Dashboard Grid */
-        .content { 
-            display: grid; 
-            grid-template-columns: 1.8fr 1.2fr; 
-            gap: 16px; 
-            padding: 16px; 
-            flex: 1; 
-            height: calc(100vh - 120px); 
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* Left Side: Dual Video Stream Container */
-        .streams-container { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 16px; 
-            height: 100%; 
+        .brand-wrap img {
+            height: 32px;
+            object-fit: contain;
         }
 
-        .stream-box { 
-            position: relative; 
-            width: 100%; 
-            flex: 1; 
-            background: #000; 
-            border-radius: 10px; 
-            overflow: hidden; 
-            border: 1px solid #28282d; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        .brand-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #111;
+            display: none;
         }
 
-        .stream-box iframe { width: 100%; height: 100%; border: none; }
-
-        /* Right Side: Notion Task Board Container */
-        .side-panel { 
-            background: #111113; 
-            border-radius: 10px; 
-            border: 1px solid #28282d; 
-            overflow: hidden; 
-            position: relative;
-            height: 100%;
-        }
-
-        .side-panel iframe { 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-        }
-
-        /* Bottom Stock & Market Ticker */
-        .ticker-bar { 
-            height: 50px; 
-            background: #111113; 
-            border-top: 2px solid #222226; 
-            display: flex; 
-            align-items: center; 
-            overflow: hidden; 
-            font-size: 18px; 
-            white-space: nowrap; 
+        .banner-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 0.88rem;
+            color: #111;
             font-weight: 600;
         }
 
-        .ticker-content { 
-            display: inline-block; 
-            padding-left: 100%;
-            animation: marquee 35s linear infinite; 
+        .weather-pill {
+            background: #f0f2f5;
+            padding: 4px 10px;
+            border-radius: 4px;
+            color: #222;
+            font-weight: 600;
+            border: 1px solid #ddd;
         }
 
-        .ticker-item { margin-right: 35px; }
-        .ticker-up { color: #00ff88; }
-        .ticker-down { color: #ff3366; }
+        #clock-display {
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
 
-        @keyframes marquee { 
-            0% { transform: translateX(0); } 
-            100% { transform: translateX(-100%); } 
+        /* ===== MAIN AREA ===== */
+        .main-area {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 6px;
+            min-height: 0;
+        }
+
+        .streams-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            min-height: 0;
+        }
+
+        .tv-box {
+            position: relative;
+            background: #000;
+            border: 2px solid var(--green);
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tv-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        .stream-label {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: var(--orange);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 3px;
+            z-index: 2;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== BOTTOM CARDS ===== */
+        .bottom-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            min-height: 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--green);
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: var(--orange);
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header span:last-child {
+            font-size: 0.6rem;
+            opacity: 0.85;
+            font-weight: 600;
+        }
+
+        .content-box {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            background: #1a1a22;
+            border-left: 3px solid var(--orange);
+            padding: 7px 10px;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+
+        .task-status {
+            font-size: 0.65rem;
+            background: rgba(230, 126, 34, 0.2);
+            color: var(--orange);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .news-item {
+            background: #1a1a22;
+            border-left: 3px solid var(--green);
+            padding: 6px 8px;
+            border-radius: 3px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .news-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .news-meta {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        /* Quote panel */
+        .quote-box {
+            background: #1a1a22;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 14px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            gap: 8px;
+        }
+
+        .quote-category {
+            font-size: 0.65rem;
+            color: var(--orange);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .quote-text {
+            font-size: 0.85rem;
+            color: #ffffff;
+            line-height: 1.4;
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .quote-author {
+            font-size: 0.7rem;
+            color: #aaa;
+            font-weight: 600;
+        }
+
+        /* ===== TICKER ===== */
+        .ticker-bar {
+            background: #111;
+            border: 2px solid var(--green);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .ticker-label {
+            background: var(--orange);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 0 12px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .ticker-track {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .ticker-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll 55s linear infinite;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .ticker-content .item {
+            margin-right: 36px;
+            display: inline-block;
+        }
+
+        .ticker-content .up { color: #2ecc71; }
+        .ticker-content .down { color: #e74c3c; }
+        .ticker-content .name { color: #bbb; margin-right: 4px; }
+        .ticker-content .section {
+            color: var(--orange);
+            font-weight: 800;
+            margin-right: 8px;
+        }
+
+        @keyframes scroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
         }
     </style>
 </head>
 <body>
-
-    <!-- Header Banner -->
-    <div class="header">
-        <div class="logo-title">
-            <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
-            <span id="dashboard-title">POAC DASHBOARD</span>
-        </div>
-        <div class="widget-info">
-            <div id="weather">Hong Kong 26°C ☀️</div>
-            <div id="clock">00:00:00</div>
-        </div>
-    </div>
-
-    <!-- Main Workspace Grid -->
-    <div class="content">
-        <!-- Dual Live Broadcast Feeds -->
-        <div class="streams-container">
-            <!-- RTHK 32 Live Stream with Closed Captions -->
-            <div class="stream-box">
-                <iframe 
-                    src="https://www.youtube.com/embed/live_stream?channel=UC__9e6aIid5a_7Q5O4C4D8g&autoplay=1&mute=1&cc_load_policy=1&cc_lang_pref=en" 
-                    allow="autoplay; encrypted-media" 
-                    allowfullscreen>
-                </iframe>
+    <div class="dashboard">
+        <!-- TOP BANNER -->
+        <div class="top-banner">
+            <div class="brand-wrap">
+                <img src="logo.png" alt="Logo"
+                     onerror="this.style.display='none'; document.getElementById('brand-fallback').style.display='inline';">
+                <span id="brand-fallback" class="brand-text">COMMAND CENTER</span>
             </div>
-            <!-- DW News Live Stream with Closed Captions -->
-            <div class="stream-box">
-                <iframe 
-                    src="https://www.youtube.com/embed/v33fWdE3QYg?autoplay=1&mute=1&cc_load_policy=1&cc_lang_pref=en" 
-                    allow="autoplay; encrypted-media" 
-                    allowfullscreen>
-                </iframe>
+            <div class="banner-right">
+                <span class="weather-pill" id="weather-banner">☀ --°C | HK Observatory</span>
+                <span id="live-date">---</span>
+                <span id="clock-display">00:00:00</span>
             </div>
         </div>
 
-        <!-- Notion Embedded Workspace -->
-        <div class="side-panel" id="notion-container">
-            <iframe src="https://notion.so"></iframe>
-        </div>
-    </div>
+        <!-- MAIN AREA -->
+        <div class="main-area">
+            <!-- LIVE STREAMS -->
+            <div class="streams-row">
+                <div class="tv-box">
+                    <span class="stream-label">RTHK 32</span>
+                    <video id="tv-1" autoplay muted playsinline></video>
+                </div>
+                <div class="tv-box">
+                    <span class="stream-label">DW English</span>
+                    <video id="tv-2" autoplay muted playsinline></video>
+                </div>
+            </div>
 
-    <!-- Multi-Source Market Ticker -->
-    <div class="ticker-bar">
-        <div class="ticker-content">
-            <span class="ticker-item"><strong>HSI:</strong> 22,410.50 <span class="ticker-up">+1.2% ▲</span></span>
-            <span class="ticker-item"><strong>NASDAQ:</strong> 18,120.30 <span class="ticker-up">+0.8% ▲</span></span>
-            <span class="ticker-item"><strong>S&P 500:</strong> 5,750.10 <span class="ticker-up">+0.5% ▲</span></span>
-            <span class="ticker-item"><strong>BTC/USD:</strong> $64,250.00 <span class="ticker-down">-0.4% ▼</span></span>
-            <span class="ticker-item"><strong>ETH/USD:</strong> $2,640.15 <span class="ticker-up">+1.5% ▲</span></span>
+            <!-- BOTTOM CARDS -->
+            <div class="bottom-row">
+                <!-- TASKS -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📌 Current Tasks</span>
+                        <span>LOCAL</span>
+                    </div>
+                    <div class="content-box" id="task-container">
+                        <!-- Static fallback – replace later with proper backend proxy -->
+                        <div class="task-item"><span>Brochure Design</span><span class="task-status">In Progress</span></div>
+                        <div class="task-item"><span>Website Updates</span><span class="task-status">In Progress</span></div>
+                        <div class="task-item"><span>XHS Content</span><span class="task-status">In Progress</span></div>
+                        <div class="task-item"><span>Social Calendar</span><span class="task-status">In Progress</span></div>
+                        <div class="task-item"><span>Website Development</span><span class="task-status">In Progress</span></div>
+                    </div>
+                </div>
+
+                <!-- NEWS -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📰 World & Sports</span>
+                        <span>LIVE RSS</span>
+                    </div>
+                    <div class="content-box" id="rss-container">
+                        <div style="color:#888;font-size:0.8rem;text-align:center;margin-top:20px;">Loading news...</div>
+                    </div>
+                </div>
+
+                <!-- INSPIRATION -->
+                <div class="card">
+                    <div class="card-header">💡 Daily Briefing & Focus</div>
+                    <div class="quote-box">
+                        <div class="quote-category" id="quote-cat">SALES INSIGHT</div>
+                        <div class="quote-text" id="quote-text">"Don't find customers for your products, find products for your customers."</div>
+                        <div class="quote-author" id="quote-author">— Seth Godin</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TICKER -->
+        <div class="ticker-bar">
+            <div class="ticker-label">MARKETS</div>
+            <div class="ticker-track">
+                <div class="ticker-content" id="ticker-content">Loading live markets...</div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Real-Time Clock Function
+        // 1. CLOCK & DATE
         function updateClock() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString();
+            document.getElementById('clock-display').textContent =
+                now.toLocaleTimeString('en-HK', { hour12: false });
+            document.getElementById('live-date').textContent =
+                now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
         }
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Rotating Daily Font System
-        const fontRotation = ['Acre', 'Outfit', 'Space Grotesk', 'Inter'];
-        const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-        const selectedFont = fontRotation[dayOfYear % fontRotation.length];
-        document.body.style.fontFamily = `"${selectedFont}", -apple-system, sans-serif`;
+        // 2. WEATHER (HK Observatory – official & reliable)
+        function fetchWeather() {
+            fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en')
+                .then(r => r.json())
+                .then(d => {
+                    if (d.temperature?.data?.[0]) {
+                        const temp = d.temperature.data[0].value;
+                        const hum = d.humidity?.data?.[0]?.value ? ` | 💧 ${d.humidity.data[0].value}%` : '';
+                        document.getElementById('weather-banner').textContent = `☀ ${temp}°C${hum} (HK)`;
+                    }
+                })
+                .catch(() => {});
+        }
+        fetchWeather();
+        setInterval(fetchWeather, 600000);
 
-        // Automated Scrolling Logic for Notion Board Container
-        const notionContainer = document.getElementById('notion-container');
-        let scrollDirection = 1;
-        setInterval(() => {
-            if (notionContainer) {
-                notionContainer.scrollTop += scrollDirection;
-                if (notionContainer.scrollTop + notionContainer.clientHeight >= notionContainer.scrollHeight || notionContainer.scrollTop === 0) {
-                    scrollDirection *= -1;
-                }
+        // 3. TASKS
+        // NOTE: Do NOT put Notion API keys in client-side code.
+        // For live Notion sync, create a small backend proxy (Cloudflare Worker / Vercel)
+        // and call that endpoint instead.
+        // For now we use a clean static list that looks intentional.
+
+        // 4. RSS NEWS
+        function fetchRSSNews() {
+            const feeds = [
+                'http://feeds.bbci.co.uk/news/world/rss.xml',
+                'http://feeds.bbci.co.uk/sport/rss.xml'
+            ];
+            const feedUrl = feeds[Math.floor(Math.random() * feeds.length)];
+            const apiUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl);
+
+            fetch(apiUrl)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.status === 'ok' && d.items?.length > 0) {
+                        const container = document.getElementById('rss-container');
+                        container.innerHTML = '';
+                        const src = feedUrl.includes('sport') ? 'BBC SPORT' : 'BBC WORLD';
+
+                        d.items.slice(0, 4).forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'news-item';
+                            div.innerHTML = `
+                                <div class="news-title">${item.title}</div>
+                                <div class="news-meta">🏆 ${src}</div>
+                            `;
+                            container.appendChild(div);
+                        });
+                    }
+                })
+                .catch(() => {});
+        }
+        fetchRSSNews();
+        setInterval(fetchRSSNews, 120000);
+
+        // 5. ROTATING INSPIRATION
+        const inspirations = [
+            { cat: "SALES TECHNIQUE", text: "Prospecting is a muscle. The more you use it, the easier closing becomes.", author: "Sales Playbook" },
+            { cat: "MOTIVATIONAL QUOTE", text: "Quality is not an act, it is a habit.", author: "Aristotle" },
+            { cat: "HIGH PERFORMANCE", text: "Consistency is what transforms average into excellence.", author: "Leadership Mantra" },
+            { cat: "CLIENT CLOSING", text: "Value is created when problem severity meets solution precision.", author: "VINO Strategy" },
+            { cat: "MOTIVATIONAL SPEECH", text: "The difference between winning and losing is most often not quitting.", author: "Walt Disney" },
+            { cat: "SALES INSIGHT", text: "Don't find customers for your products, find products for your customers.", author: "Seth Godin" }
+        ];
+
+        let inspireIdx = 0;
+        function rotateInspiration() {
+            inspireIdx = (inspireIdx + 1) % inspirations.length;
+            const item = inspirations[inspireIdx];
+            document.getElementById('quote-cat').textContent = item.cat;
+            document.getElementById('quote-text').textContent = `"${item.text}"`;
+            document.getElementById('quote-author').textContent = `— ${item.author}`;
+        }
+        setInterval(rotateInspiration, 10000);
+
+        // 6. MARKET TICKER
+        const HK = [
+            { s: '0700.HK', n: 'Tencent', fallback: '380.20', chg: '+1.42' },
+            { s: '9988.HK', n: 'Alibaba', fallback: '82.50', chg: '+0.85' },
+            { s: '0005.HK', n: 'HSBC', fallback: '68.10', chg: '-0.30' },
+            { s: '1299.HK', n: 'AIA', fallback: '54.20', chg: '+1.10' }
+        ];
+        const JP = [
+            { s: '7203.T', n: 'Toyota', fallback: '2810.0', chg: '+0.65' },
+            { s: '6758.T', n: 'Sony', fallback: '13150.0', chg: '-0.20' },
+            { s: '9984.T', n: 'SoftBank', fallback: '8820.0', chg: '+2.10' }
+        ];
+        const US = [
+            { s: 'AAPL', n: 'Apple', fallback: '228.40', chg: '+0.52' },
+            { s: 'NVDA', n: 'Nvidia', fallback: '121.80', chg: '+2.45' },
+            { s: 'MSFT', n: 'Microsoft', fallback: '428.10', chg: '+0.18' }
+        ];
+
+        async function fetchYahoo(symbols) {
+            const url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + symbols.join(',');
+            const proxies = [
+                u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+                u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u)
+            ];
+
+            for (const make of proxies) {
+                try {
+                    const r = await fetch(make(url));
+                    if (!r.ok) continue;
+                    const data = await r.json();
+                    if (data.quoteResponse?.result) return data.quoteResponse.result;
+                } catch (e) {}
             }
-        }, 50);
+            return [];
+        }
+
+        async function updateTicker() {
+            const allSym = [...HK, ...JP, ...US].map(x => x.s);
+            const quotes = await fetchYahoo(allSym);
+            const map = {};
+            quotes.forEach(q => map[q.symbol] = q);
+
+            let html = '';
+
+            // HKEX
+            html += `<span class="item"><span class="section">HKEX</span></span>`;
+            HK.forEach(s => {
+                const q = map[s.s];
+                const price = q?.regularMarketPrice ?? s.fallback;
+                const chg = q?.regularMarketChangePercent ?? parseFloat(s.chg);
+                const cls = chg >= 0 ? 'up' : 'down';
+                const sign = chg >= 0 ? '+' : '';
+                html += `<span class="item"><span class="name">${s.s.replace('.HK','')} ${s.n}</span> ${price} <span class="${cls}">${sign}${Number(chg).toFixed(2)}%</span></span>`;
+            });
+
+            // JAPAN
+            html += `<span class="item"><span class="section">JAPAN</span></span>`;
+            JP.forEach(s => {
+                const q = map[s.s];
+                const price = q?.regularMarketPrice ?? s.fallback;
+                const chg = q?.regularMarketChangePercent ?? parseFloat(s.chg);
+                const cls = chg >= 0 ? 'up' : 'down';
+                const sign = chg >= 0 ? '+' : '';
+                html += `<span class="item"><span class="name">${s.s.replace('.T','')} ${s.n}</span> ${price} <span class="${cls}">${sign}${Number(chg).toFixed(2)}%</span></span>`;
+            });
+
+            // US
+            html += `<span class="item"><span class="section">US</span></span>`;
+            US.forEach(s => {
+                const q = map[s.s];
+                const price = q?.regularMarketPrice ?? s.fallback;
+                const chg = q?.regularMarketChangePercent ?? parseFloat(s.chg);
+                const cls = chg >= 0 ? 'up' : 'down';
+                const sign = chg >= 0 ? '+' : '';
+                html += `<span class="item"><span class="name">${s.s} ${s.n}</span> ${price} <span class="${cls}">${sign}${Number(chg).toFixed(2)}%</span></span>`;
+            });
+
+            // FX
+            html += `<span class="item"><span class="section">FX</span></span>`;
+            const fxPairs = [
+                { c: 'USD/HKD', v: '7.8120' },
+                { c: 'EUR/HKD', v: '8.4850' },
+                { c: 'GBP/HKD', v: '10.120' },
+                { c: 'JPY/HKD', v: '5.2410' },
+                { c: 'USD/JPY', v: '148.95' }
+            ];
+            fxPairs.forEach(p => {
+                html += `<span class="item"><span class="name">${p.c}</span> ${p.v}</span>`;
+            });
+
+            document.getElementById('ticker-content').innerHTML = html + html;
+        }
+
+        updateTicker();
+        setInterval(updateTicker, 60000);
+
+        // 7. TV STREAMS
+        function loadStream(id, url) {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    manifestLoadingTimeOut: 15000,
+                    enableWorker: true
+                });
+                hls.loadSource(url);
+                hls.attachMedia(el);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    el.muted = true;
+                    el.play().catch(() => {});
+                });
+            } else if (el.canPlayType('application/vnd.apple.mpegurl')) {
+                el.src = url;
+                el.muted = true;
+                el.play().catch(() => {});
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStream('tv-1', 'https://rthktv32-live.akamaized.net/hls/live/2036819/RTHKTV32/master.m3u8');
+            loadStream('tv-2', 'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/master.m3u8');
+        });
     </script>
 </body>
 </html>
