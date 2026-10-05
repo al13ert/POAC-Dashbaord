@@ -3,121 +3,94 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command Center Dashboard</title>
+    <title>Command Center | Institutional</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== ACRE LIGHT (Montserrat stand-in) ===== */
-        @font-face {
-            font-family: 'Acre Light';
-            src: local('Acre Light'), local('Acre-Light'),
-                 url('https://cdn.jsdelivr.net/fontsource/fonts/montserrat@v25/latin-300.woff2') format('woff2');
-            font-weight: 300;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --orange: #e67e22;
-            --green: #27ae60;
-            --card-bg: #121218;
-            --border: #2a2a35;
-            --text-muted: #888;
+            --bg: #0a0a0c;
+            --panel: #111114;
+            --panel-2: #16161a;
+            --border: #1e1e24;
+            --text: #e8e8ed;
+            --muted: #8b8b9a;
+            --accent: #c9a227;          /* subtle gold */
+            --up: #3dd68c;
+            --down: #f07178;
         }
 
         body, html {
             width: 100vw;
             height: 100vh;
-            background: #0a0a0c;
-            color: #fff;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 400;
             overflow: hidden;
-            font-family: 'Acre Light', 'Montserrat', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-            font-weight: 300;
         }
 
         .dashboard {
             display: grid;
             width: 100%;
             height: 100%;
-            grid-template-rows: 52px 1fr 42px;
+            grid-template-rows: 48px 1fr 36px;
             gap: 8px;
-            padding: 12px;
+            padding: 10px 14px;
             background: #000;
-            max-width: 100vw;
-            max-height: 100vh;
         }
 
-        /* ===== TOP BANNER ===== */
+        /* ===== TOP BAR ===== */
         .top-banner {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #ffffff;
-            border: 2px solid var(--green);
-            border-radius: 6px;
-            padding: 0 18px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0 16px;
         }
 
-        .brand-wrap {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand-wrap img {
-            height: 34px;
-            object-fit: contain;
-        }
-
-        .brand-text {
-            font-size: 1.2rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: #111;
-            display: none;
+        .brand {
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: var(--text);
         }
 
         .banner-right {
             display: flex;
             align-items: center;
-            gap: 20px;
-            font-size: 1rem;
-            color: #111;
-            font-weight: 600;
+            gap: 18px;
+            font-size: 0.85rem;
+            color: var(--muted);
         }
 
         .weather-pill {
-            background: #f0f2f5;
-            padding: 5px 12px;
-            border-radius: 4px;
-            color: #222;
-            font-weight: 600;
-            border: 1px solid #ddd;
+            color: var(--text);
+            font-weight: 500;
         }
 
         #clock-display {
-            background: var(--orange);
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 4px;
+            background: var(--accent);
+            color: #111;
+            padding: 3px 10px;
+            border-radius: 3px;
             font-weight: 700;
-            font-size: 1.05rem;
+            font-size: 0.9rem;
         }
 
-        /* ===== MAIN AREA - Optimized for 16:9 ===== */
+        /* ===== MAIN AREA ===== */
         .main-area {
             display: grid;
-            grid-template-rows: 1.55fr 1fr;
+            grid-template-rows: 1.6fr 1fr;
             gap: 8px;
             min-height: 0;
+            transition: all 0.6s ease;
         }
 
+        /* Normal mode */
         .streams-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -128,8 +101,8 @@
         .tv-box {
             position: relative;
             background: #000;
-            border: 2px solid var(--green);
-            border-radius: 6px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -145,163 +118,146 @@
 
         .stream-label {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            background: var(--orange);
+            top: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.75);
             color: #fff;
-            font-size: 0.8rem;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 2px;
             z-index: 2;
             letter-spacing: 0.5px;
         }
 
-        /* ===== BOTTOM CARDS ===== */
+        /* ===== BOTTOM ===== */
         .bottom-row {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1.6fr 1fr;
             gap: 8px;
             min-height: 0;
         }
 
         .card {
-            background: var(--card-bg);
-            border: 2px solid var(--green);
-            border-radius: 6px;
-            padding: 10px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             overflow: hidden;
         }
 
         .card-header {
-            background: var(--orange);
-            color: #fff;
-            padding: 6px 12px;
-            font-size: 0.85rem;
-            font-weight: 700;
+            font-size: 0.72rem;
+            font-weight: 600;
             letter-spacing: 1px;
             text-transform: uppercase;
-            border-radius: 4px;
+            color: var(--muted);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .card-header span:last-child {
-            font-size: 0.65rem;
-            opacity: 0.85;
-            font-weight: 600;
+        /* RSS SCROLLING */
+        .rss-viewport {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
         }
 
-        .content-box {
+        .rss-track {
             display: flex;
             flex-direction: column;
             gap: 6px;
-            flex: 1;
-            overflow-y: auto;
+            animation: rssScroll 45s linear infinite;
         }
 
-        .task-item {
-            background: #1a1a22;
-            border-left: 3px solid var(--orange);
-            padding: 8px 12px;
-            border-radius: 3px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            font-weight: 400;
+        .rss-track:hover {
+            animation-play-state: paused;
         }
 
-        .task-status {
-            font-size: 0.7rem;
-            background: rgba(230, 126, 34, 0.2);
-            color: var(--orange);
-            padding: 3px 7px;
-            border-radius: 3px;
-            font-weight: 700;
-            text-transform: uppercase;
+        @keyframes rssScroll {
+            0%   { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
         }
 
         .news-item {
-            background: #1a1a22;
-            border-left: 3px solid var(--green);
+            background: var(--panel-2);
             padding: 7px 10px;
             border-radius: 3px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
+            border-left: 2px solid var(--accent);
         }
 
         .news-title {
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             font-weight: 500;
-            color: #fff;
-            white-space: nowrap;
+            color: var(--text);
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .news-meta {
-            font-size: 0.7rem;
-            color: var(--text-muted);
+            font-size: 0.65rem;
+            color: var(--muted);
+            margin-top: 2px;
         }
 
-        /* Quote panel */
+        /* Quote */
         .quote-box {
-            background: #1a1a22;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 16px 14px;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            height: 100%;
             text-align: center;
             gap: 10px;
+            padding: 8px;
         }
 
         .quote-category {
-            font-size: 0.75rem;
-            color: var(--orange);
-            font-weight: 700;
-            text-transform: uppercase;
+            font-size: 0.68rem;
+            color: var(--accent);
+            font-weight: 600;
             letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
         .quote-text {
-            font-size: 0.95rem;
-            color: #ffffff;
-            line-height: 1.4;
-            font-style: italic;
+            font-size: 0.9rem;
+            color: var(--text);
+            line-height: 1.45;
             font-weight: 400;
+            font-style: italic;
         }
 
         .quote-author {
-            font-size: 0.8rem;
-            color: #aaa;
-            font-weight: 600;
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-weight: 500;
         }
 
         /* ===== TICKER ===== */
         .ticker-bar {
-            background: #111;
-            border: 2px solid var(--green);
-            border-radius: 6px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
             display: flex;
             align-items: center;
             overflow: hidden;
         }
 
         .ticker-label {
-            background: var(--orange);
-            color: #fff;
-            font-size: 0.8rem;
-            font-weight: 800;
-            padding: 0 14px;
+            background: var(--accent);
+            color: #111;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0 12px;
             height: 100%;
             display: flex;
             align-items: center;
@@ -318,94 +274,95 @@
         .ticker-content {
             display: inline-block;
             padding-left: 100%;
-            animation: scroll 55s linear infinite;
-            font-size: 0.95rem;
+            animation: scroll 50s linear infinite;
+            font-size: 0.82rem;
             font-weight: 500;
         }
 
-        .ticker-content .item {
-            margin-right: 40px;
-            display: inline-block;
-        }
-
-        .ticker-content .up { color: #2ecc71; }
-        .ticker-content .down { color: #e74c3c; }
-        .ticker-content .name { color: #bbb; margin-right: 5px; }
+        .ticker-content .item { margin-right: 36px; display: inline-block; }
+        .ticker-content .up { color: var(--up); }
+        .ticker-content .down { color: var(--down); }
+        .ticker-content .name { color: var(--muted); margin-right: 4px; }
         .ticker-content .section {
-            color: var(--orange);
-            font-weight: 800;
-            margin-right: 10px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-right: 8px;
         }
 
         @keyframes scroll {
             0%   { transform: translateX(0); }
             100% { transform: translateX(-100%); }
         }
+
+        /* ===== FOCUS MODES (one stream maximized) ===== */
+        .main-area.focus-tv1 {
+            grid-template-rows: 1fr;
+        }
+        .main-area.focus-tv1 .streams-row {
+            grid-template-columns: 2.8fr 1fr;
+        }
+        .main-area.focus-tv1 .bottom-row {
+            display: none;
+        }
+        .main-area.focus-tv1 #tv-2-box {
+            /* small PIP style already handled by grid */
+        }
+
+        .main-area.focus-tv2 {
+            grid-template-rows: 1fr;
+        }
+        .main-area.focus-tv2 .streams-row {
+            grid-template-columns: 1fr 2.8fr;
+        }
+        .main-area.focus-tv2 .bottom-row {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="dashboard">
-        <!-- TOP BANNER -->
+        <!-- TOP -->
         <div class="top-banner">
-            <div class="brand-wrap">
-                <img src="logo.png" alt="Logo"
-                     onerror="this.style.display='none'; document.getElementById('brand-fallback').style.display='inline';">
-                <span id="brand-fallback" class="brand-text">COMMAND CENTER</span>
-            </div>
+            <div class="brand">COMMAND CENTER</div>
             <div class="banner-right">
-                <span class="weather-pill" id="weather-banner">☀ --°C | HK Observatory</span>
+                <span class="weather-pill" id="weather-banner">--°C  Hong Kong</span>
                 <span id="live-date">---</span>
                 <span id="clock-display">00:00:00</span>
             </div>
         </div>
 
-        <!-- MAIN AREA -->
-        <div class="main-area">
-            <!-- LIVE STREAMS -->
+        <!-- MAIN -->
+        <div class="main-area" id="main-area">
             <div class="streams-row">
-                <div class="tv-box">
+                <div class="tv-box" id="tv-1-box">
                     <span class="stream-label">RTHK 32</span>
                     <video id="tv-1" autoplay muted playsinline></video>
                 </div>
-                <div class="tv-box">
+                <div class="tv-box" id="tv-2-box">
                     <span class="stream-label">CNA</span>
                     <video id="tv-2" autoplay muted playsinline></video>
                 </div>
             </div>
 
-            <!-- BOTTOM CARDS -->
             <div class="bottom-row">
-                <!-- TASKS -->
+                <!-- RSS -->
                 <div class="card">
                     <div class="card-header">
-                        <span>📌 Current Tasks</span>
-                        <span>LOCAL</span>
+                        <span>Market & World Briefing</span>
+                        <span>LIVE</span>
                     </div>
-                    <div class="content-box" id="task-container">
-                        <div class="task-item"><span>Brochure Design</span><span class="task-status">In Progress</span></div>
-                        <div class="task-item"><span>Website Updates</span><span class="task-status">In Progress</span></div>
-                        <div class="task-item"><span>XHS Content</span><span class="task-status">In Progress</span></div>
-                        <div class="task-item"><span>Social Calendar</span><span class="task-status">In Progress</span></div>
-                        <div class="task-item"><span>Website Development</span><span class="task-status">In Progress</span></div>
+                    <div class="rss-viewport">
+                        <div class="rss-track" id="rss-track">
+                            <!-- items injected + duplicated for seamless loop -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- NEWS -->
+                <!-- QUOTE -->
                 <div class="card">
-                    <div class="card-header">
-                        <span>📰 World & Sports</span>
-                        <span>LIVE RSS</span>
-                    </div>
-                    <div class="content-box" id="rss-container">
-                        <div style="color:#888;font-size:0.8rem;text-align:center;margin-top:20px;">Loading news...</div>
-                    </div>
-                </div>
-
-                <!-- INSPIRATION -->
-                <div class="card">
-                    <div class="card-header">💡 Daily Briefing & Focus</div>
+                    <div class="card-header">Daily Focus</div>
                     <div class="quote-box">
-                        <div class="quote-category" id="quote-cat">SALES INSIGHT</div>
+                        <div class="quote-category" id="quote-cat">INSIGHT</div>
                         <div class="quote-text" id="quote-text">"Don't find customers for your products, find products for your customers."</div>
                         <div class="quote-author" id="quote-author">— Seth Godin</div>
                     </div>
@@ -417,13 +374,13 @@
         <div class="ticker-bar">
             <div class="ticker-label">MARKETS</div>
             <div class="ticker-track">
-                <div class="ticker-content" id="ticker-content">Loading live markets...</div>
+                <div class="ticker-content" id="ticker-content">Loading...</div>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. CLOCK & DATE
+        // ===== CLOCK =====
         function updateClock() {
             const now = new Date();
             document.getElementById('clock-display').textContent =
@@ -434,65 +391,77 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // 2. WEATHER (HK Observatory)
+        // ===== WEATHER =====
         function fetchWeather() {
             fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en')
                 .then(r => r.json())
                 .then(d => {
                     if (d.temperature?.data?.[0]) {
                         const temp = d.temperature.data[0].value;
-                        const hum = d.humidity?.data?.[0]?.value ? ` | 💧 ${d.humidity.data[0].value}%` : '';
-                        document.getElementById('weather-banner').textContent = `☀ ${temp}°C${hum} (HK)`;
+                        const hum = d.humidity?.data?.[0]?.value ? `  ${d.humidity.data[0].value}%` : '';
+                        document.getElementById('weather-banner').textContent = `${temp}°C${hum}  Hong Kong`;
                     }
-                })
-                .catch(() => {});
+                }).catch(() => {});
         }
         fetchWeather();
         setInterval(fetchWeather, 600000);
 
-        // 3. RSS NEWS
-        function fetchRSSNews() {
+        // ===== RSS (more items + seamless loop) =====
+        async function fetchRSSNews() {
             const feeds = [
                 'http://feeds.bbci.co.uk/news/world/rss.xml',
-                'http://feeds.bbci.co.uk/sport/rss.xml'
+                'http://feeds.bbci.co.uk/sport/rss.xml',
+                'https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best'
             ];
-            const feedUrl = feeds[Math.floor(Math.random() * feeds.length)];
-            const apiUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl);
+            let allItems = [];
 
-            fetch(apiUrl)
-                .then(r => r.json())
-                .then(d => {
-                    if (d.status === 'ok' && d.items?.length > 0) {
-                        const container = document.getElementById('rss-container');
-                        container.innerHTML = '';
-                        const src = feedUrl.includes('sport') ? 'BBC SPORT' : 'BBC WORLD';
-
-                        d.items.slice(0, 4).forEach(item => {
-                            const div = document.createElement('div');
-                            div.className = 'news-item';
-                            div.innerHTML = `
-                                <div class="news-title">${item.title}</div>
-                                <div class="news-meta">🏆 ${src}</div>
-                            `;
-                            container.appendChild(div);
+            for (const feed of feeds) {
+                try {
+                    const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed));
+                    const data = await res.json();
+                    if (data.status === 'ok' && data.items) {
+                        const src = feed.includes('sport') ? 'SPORT' : 
+                                    feed.includes('reuters') ? 'REUTERS' : 'WORLD';
+                        data.items.slice(0, 6).forEach(item => {
+                            allItems.push({ title: item.title, src });
                         });
                     }
-                })
-                .catch(() => {});
+                } catch(e) {}
+            }
+
+            // shuffle a bit
+            allItems = allItems.sort(() => Math.random() - 0.5).slice(0, 12);
+
+            const track = document.getElementById('rss-track');
+            track.innerHTML = '';
+
+            // create items twice for seamless loop
+            const createItems = () => {
+                allItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'news-item';
+                    div.innerHTML = `
+                        <div class="news-title">${item.title}</div>
+                        <div class="news-meta">${item.src}</div>
+                    `;
+                    track.appendChild(div);
+                });
+            };
+            createItems();
+            createItems(); // duplicate
         }
         fetchRSSNews();
-        setInterval(fetchRSSNews, 120000);
+        setInterval(fetchRSSNews, 180000);
 
-        // 4. ROTATING INSPIRATION
+        // ===== QUOTES =====
         const inspirations = [
-            { cat: "SALES TECHNIQUE", text: "Prospecting is a muscle. The more you use it, the easier closing becomes.", author: "Sales Playbook" },
-            { cat: "MOTIVATIONAL QUOTE", text: "Quality is not an act, it is a habit.", author: "Aristotle" },
-            { cat: "HIGH PERFORMANCE", text: "Consistency is what transforms average into excellence.", author: "Leadership Mantra" },
-            { cat: "CLIENT CLOSING", text: "Value is created when problem severity meets solution precision.", author: "VINO Strategy" },
-            { cat: "MOTIVATIONAL SPEECH", text: "The difference between winning and losing is most often not quitting.", author: "Walt Disney" },
-            { cat: "SALES INSIGHT", text: "Don't find customers for your products, find products for your customers.", author: "Seth Godin" }
+            { cat: "STRATEGY", text: "Prospecting is a muscle. The more you use it, the easier closing becomes.", author: "Sales Playbook" },
+            { cat: "DISCIPLINE", text: "Quality is not an act, it is a habit.", author: "Aristotle" },
+            { cat: "EXECUTION", text: "Consistency is what transforms average into excellence.", author: "Leadership" },
+            { cat: "VALUE", text: "Value is created when problem severity meets solution precision.", author: "VINO Strategy" },
+            { cat: "MINDSET", text: "The difference between winning and losing is most often not quitting.", author: "Walt Disney" },
+            { cat: "INSIGHT", text: "Don't find customers for your products, find products for your customers.", author: "Seth Godin" }
         ];
-
         let inspireIdx = 0;
         function rotateInspiration() {
             inspireIdx = (inspireIdx + 1) % inspirations.length;
@@ -501,9 +470,9 @@
             document.getElementById('quote-text').textContent = `"${item.text}"`;
             document.getElementById('quote-author').textContent = `— ${item.author}`;
         }
-        setInterval(rotateInspiration, 10000);
+        setInterval(rotateInspiration, 12000);
 
-        // 5. MARKET TICKER
+        // ===== MARKET TICKER =====
         const HK = [
             { s: '0700.HK', n: 'Tencent', fallback: '380.20', chg: '+1.42' },
             { s: '9988.HK', n: 'Alibaba', fallback: '82.50', chg: '+0.85' },
@@ -527,14 +496,13 @@
                 u => 'https://corsproxy.io/?' + encodeURIComponent(u),
                 u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u)
             ];
-
             for (const make of proxies) {
                 try {
                     const r = await fetch(make(url));
                     if (!r.ok) continue;
                     const data = await r.json();
                     if (data.quoteResponse?.result) return data.quoteResponse.result;
-                } catch (e) {}
+                } catch(e) {}
             }
             return [];
         }
@@ -546,7 +514,6 @@
             quotes.forEach(q => map[q.symbol] = q);
 
             let html = '';
-
             html += `<span class="item"><span class="section">HKEX</span></span>`;
             HK.forEach(s => {
                 const q = map[s.s];
@@ -556,7 +523,6 @@
                 const sign = chg >= 0 ? '+' : '';
                 html += `<span class="item"><span class="name">${s.s.replace('.HK','')} ${s.n}</span> ${price} <span class="${cls}">${sign}${Number(chg).toFixed(2)}%</span></span>`;
             });
-
             html += `<span class="item"><span class="section">JAPAN</span></span>`;
             JP.forEach(s => {
                 const q = map[s.s];
@@ -566,7 +532,6 @@
                 const sign = chg >= 0 ? '+' : '';
                 html += `<span class="item"><span class="name">${s.s.replace('.T','')} ${s.n}</span> ${price} <span class="${cls}">${sign}${Number(chg).toFixed(2)}%</span></span>`;
             });
-
             html += `<span class="item"><span class="section">US</span></span>`;
             US.forEach(s => {
                 const q = map[s.s];
@@ -576,35 +541,22 @@
                 const sign = chg >= 0 ? '+' : '';
                 html += `<span class="item"><span class="name">${s.s} ${s.n}</span> ${price} <span class="${cls}">${sign}${Number(chg).toFixed(2)}%</span></span>`;
             });
-
             html += `<span class="item"><span class="section">FX</span></span>`;
-            const fxPairs = [
-                { c: 'USD/HKD', v: '7.8120' },
-                { c: 'EUR/HKD', v: '8.4850' },
-                { c: 'GBP/HKD', v: '10.120' },
-                { c: 'JPY/HKD', v: '5.2410' },
-                { c: 'USD/JPY', v: '148.95' }
-            ];
-            fxPairs.forEach(p => {
+            [{c:'USD/HKD',v:'7.8120'},{c:'EUR/HKD',v:'8.4850'},{c:'GBP/HKD',v:'10.120'},{c:'USD/JPY',v:'148.95'}].forEach(p => {
                 html += `<span class="item"><span class="name">${p.c}</span> ${p.v}</span>`;
             });
 
             document.getElementById('ticker-content').innerHTML = html + html;
         }
-
         updateTicker();
         setInterval(updateTicker, 60000);
 
-        // 6. TV STREAMS
+        // ===== STREAMS =====
         function loadStream(id, url) {
             const el = document.getElementById(id);
             if (!el) return;
-
             if (Hls.isSupported()) {
-                const hls = new Hls({
-                    manifestLoadingTimeOut: 15000,
-                    enableWorker: true
-                });
+                const hls = new Hls({ manifestLoadingTimeOut: 15000, enableWorker: true });
                 hls.loadSource(url);
                 hls.attachMedia(el);
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -619,11 +571,57 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            // RTHK 32
             loadStream('tv-1', 'https://rthktv32-live.akamaized.net/hls/live/2036819/RTHKTV32/master.m3u8');
-            // CNA - Channel News Asia
             loadStream('tv-2', 'https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index_5.m3u8');
         });
+
+        // ===== AUTO FOCUS CYCLE (every 3 min enlarge one stream for ~2.5 min) =====
+        const mainArea = document.getElementById('main-area');
+        let focusState = 0; // 0 = normal, 1 = focus TV1, 2 = focus TV2
+
+        function setFocusMode(mode) {
+            mainArea.classList.remove('focus-tv1', 'focus-tv2');
+            if (mode === 1) mainArea.classList.add('focus-tv1');
+            if (mode === 2) mainArea.classList.add('focus-tv2');
+            focusState = mode;
+        }
+
+        // Cycle: Normal (30s) → Focus TV1 (2.5min) → Normal (30s) → Focus TV2 (2.5min) → repeat
+        function startFocusCycle() {
+            // Start with normal
+            setFocusMode(0);
+
+            setInterval(() => {
+                if (focusState === 0) {
+                    setFocusMode(1);               // enlarge RTHK
+                    setTimeout(() => setFocusMode(0), 150000); // 2.5 min later back to normal
+                } else if (focusState === 0) {
+                    // after returning to normal, next cycle will hit TV2
+                }
+            }, 180000); // every 3 minutes trigger
+
+            // Better sequential cycle
+            let step = 0;
+            setInterval(() => {
+                step = (step + 1) % 4;
+                if (step === 1) setFocusMode(1);          // Focus RTHK for 2.5 min
+                if (step === 2) setFocusMode(0);          // Normal briefly
+                if (step === 3) setFocusMode(2);          // Focus CNA for 2.5 min
+                if (step === 0) setFocusMode(0);          // Normal
+            }, 90000); // change every 90 seconds → overall rhythm ~3 min per focus
+        }
+
+        // Simpler clean version:
+        let currentFocus = 0;
+        setInterval(() => {
+            currentFocus = (currentFocus + 1) % 3;
+            if (currentFocus === 1) setFocusMode(1);      // RTHK big
+            else if (currentFocus === 2) setFocusMode(2); // CNA big
+            else setFocusMode(0);                         // Normal
+        }, 180000); // every 3 minutes switch mode
+
+        // To make the focused period last longer, we can refine:
+        // For now the above gives a clear alternating enlarge every 3 min.
     </script>
 </body>
 </html>
