@@ -16,7 +16,7 @@
             --border: #1e1e24;
             --text: #e8e8ed;
             --muted: #8b8b9a;
-            --accent: #c9a227;          /* subtle gold */
+            --accent: #c9a227;
             --up: #3dd68c;
             --down: #f07178;
         }
@@ -52,11 +52,24 @@
             padding: 0 16px;
         }
 
-        .brand {
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-wrap img {
+            height: 32px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .brand-text {
             font-size: 0.95rem;
             font-weight: 600;
             letter-spacing: 1.5px;
             color: var(--text);
+            display: none;
         }
 
         .banner-right {
@@ -90,7 +103,6 @@
             transition: all 0.6s ease;
         }
 
-        /* Normal mode */
         .streams-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -173,11 +185,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            animation: rssScroll 45s linear infinite;
-        }
-
-        .rss-track:hover {
-            animation-play-state: paused;
+            animation: rssScroll 50s linear infinite;
         }
 
         @keyframes rssScroll {
@@ -294,7 +302,7 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* ===== FOCUS MODES (one stream maximized) ===== */
+        /* ===== FOCUS MODES ===== */
         .main-area.focus-tv1 {
             grid-template-rows: 1fr;
         }
@@ -303,9 +311,6 @@
         }
         .main-area.focus-tv1 .bottom-row {
             display: none;
-        }
-        .main-area.focus-tv1 #tv-2-box {
-            /* small PIP style already handled by grid */
         }
 
         .main-area.focus-tv2 {
@@ -323,7 +328,11 @@
     <div class="dashboard">
         <!-- TOP -->
         <div class="top-banner">
-            <div class="brand">COMMAND CENTER</div>
+            <div class="brand-wrap">
+                <img src="logo.png" alt="Logo"
+                     onerror="this.style.display='none'; document.getElementById('brand-fallback').style.display='inline';">
+                <span id="brand-fallback" class="brand-text">COMMAND CENTER</span>
+            </div>
             <div class="banner-right">
                 <span class="weather-pill" id="weather-banner">--°C  Hong Kong</span>
                 <span id="live-date">---</span>
@@ -352,9 +361,7 @@
                         <span>LIVE</span>
                     </div>
                     <div class="rss-viewport">
-                        <div class="rss-track" id="rss-track">
-                            <!-- items injected + duplicated for seamless loop -->
-                        </div>
+                        <div class="rss-track" id="rss-track"></div>
                     </div>
                 </div>
 
@@ -380,7 +387,7 @@
     </div>
 
     <script>
-        // ===== CLOCK =====
+        // CLOCK
         function updateClock() {
             const now = new Date();
             document.getElementById('clock-display').textContent =
@@ -391,7 +398,7 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // ===== WEATHER =====
+        // WEATHER
         function fetchWeather() {
             fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en')
                 .then(r => r.json())
@@ -406,12 +413,11 @@
         fetchWeather();
         setInterval(fetchWeather, 600000);
 
-        // ===== RSS (more items + seamless loop) =====
+        // RSS
         async function fetchRSSNews() {
             const feeds = [
                 'http://feeds.bbci.co.uk/news/world/rss.xml',
-                'http://feeds.bbci.co.uk/sport/rss.xml',
-                'https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best'
+                'http://feeds.bbci.co.uk/sport/rss.xml'
             ];
             let allItems = [];
 
@@ -420,22 +426,19 @@
                     const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed));
                     const data = await res.json();
                     if (data.status === 'ok' && data.items) {
-                        const src = feed.includes('sport') ? 'SPORT' : 
-                                    feed.includes('reuters') ? 'REUTERS' : 'WORLD';
-                        data.items.slice(0, 6).forEach(item => {
+                        const src = feed.includes('sport') ? 'SPORT' : 'WORLD';
+                        data.items.slice(0, 7).forEach(item => {
                             allItems.push({ title: item.title, src });
                         });
                     }
                 } catch(e) {}
             }
 
-            // shuffle a bit
-            allItems = allItems.sort(() => Math.random() - 0.5).slice(0, 12);
+            allItems = allItems.sort(() => Math.random() - 0.5).slice(0, 14);
 
             const track = document.getElementById('rss-track');
             track.innerHTML = '';
 
-            // create items twice for seamless loop
             const createItems = () => {
                 allItems.forEach(item => {
                     const div = document.createElement('div');
@@ -448,12 +451,12 @@
                 });
             };
             createItems();
-            createItems(); // duplicate
+            createItems();
         }
         fetchRSSNews();
         setInterval(fetchRSSNews, 180000);
 
-        // ===== QUOTES =====
+        // QUOTES
         const inspirations = [
             { cat: "STRATEGY", text: "Prospecting is a muscle. The more you use it, the easier closing becomes.", author: "Sales Playbook" },
             { cat: "DISCIPLINE", text: "Quality is not an act, it is a habit.", author: "Aristotle" },
@@ -472,7 +475,7 @@
         }
         setInterval(rotateInspiration, 12000);
 
-        // ===== MARKET TICKER =====
+        // MARKET TICKER
         const HK = [
             { s: '0700.HK', n: 'Tencent', fallback: '380.20', chg: '+1.42' },
             { s: '9988.HK', n: 'Alibaba', fallback: '82.50', chg: '+0.85' },
@@ -551,7 +554,7 @@
         updateTicker();
         setInterval(updateTicker, 60000);
 
-        // ===== STREAMS =====
+        // STREAMS
         function loadStream(id, url) {
             const el = document.getElementById(id);
             if (!el) return;
@@ -575,53 +578,22 @@
             loadStream('tv-2', 'https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index_5.m3u8');
         });
 
-        // ===== AUTO FOCUS CYCLE (every 3 min enlarge one stream for ~2.5 min) =====
+        // AUTO FOCUS CYCLE
         const mainArea = document.getElementById('main-area');
-        let focusState = 0; // 0 = normal, 1 = focus TV1, 2 = focus TV2
 
         function setFocusMode(mode) {
             mainArea.classList.remove('focus-tv1', 'focus-tv2');
             if (mode === 1) mainArea.classList.add('focus-tv1');
             if (mode === 2) mainArea.classList.add('focus-tv2');
-            focusState = mode;
         }
 
-        // Cycle: Normal (30s) → Focus TV1 (2.5min) → Normal (30s) → Focus TV2 (2.5min) → repeat
-        function startFocusCycle() {
-            // Start with normal
-            setFocusMode(0);
-
-            setInterval(() => {
-                if (focusState === 0) {
-                    setFocusMode(1);               // enlarge RTHK
-                    setTimeout(() => setFocusMode(0), 150000); // 2.5 min later back to normal
-                } else if (focusState === 0) {
-                    // after returning to normal, next cycle will hit TV2
-                }
-            }, 180000); // every 3 minutes trigger
-
-            // Better sequential cycle
-            let step = 0;
-            setInterval(() => {
-                step = (step + 1) % 4;
-                if (step === 1) setFocusMode(1);          // Focus RTHK for 2.5 min
-                if (step === 2) setFocusMode(0);          // Normal briefly
-                if (step === 3) setFocusMode(2);          // Focus CNA for 2.5 min
-                if (step === 0) setFocusMode(0);          // Normal
-            }, 90000); // change every 90 seconds → overall rhythm ~3 min per focus
-        }
-
-        // Simpler clean version:
         let currentFocus = 0;
         setInterval(() => {
             currentFocus = (currentFocus + 1) % 3;
-            if (currentFocus === 1) setFocusMode(1);      // RTHK big
-            else if (currentFocus === 2) setFocusMode(2); // CNA big
-            else setFocusMode(0);                         // Normal
-        }, 180000); // every 3 minutes switch mode
-
-        // To make the focused period last longer, we can refine:
-        // For now the above gives a clear alternating enlarge every 3 min.
+            if (currentFocus === 1) setFocusMode(1);      // RTHK enlarged
+            else if (currentFocus === 2) setFocusMode(2); // CNA enlarged
+            else setFocusMode(0);                         // Normal view
+        }, 180000); // every 3 minutes
     </script>
 </body>
 </html>
