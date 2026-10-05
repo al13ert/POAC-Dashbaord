@@ -83,6 +83,10 @@
         .weather-pill {
             color: var(--text);
             font-weight: 500;
+            max-width: 420px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         #clock-display {
@@ -142,7 +146,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* CC Button */
         .cc-btn {
             position: absolute;
             top: 8px;
@@ -173,7 +176,6 @@
             cursor: not-allowed;
         }
 
-        /* Subtitle styling */
         video::cue {
             background: rgba(0,0,0,0.75);
             color: #fff;
@@ -215,7 +217,6 @@
             border-bottom: 1px solid var(--border);
         }
 
-        /* RSS SCROLLING */
         .rss-viewport {
             flex: 1;
             overflow: hidden;
@@ -226,7 +227,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            animation: rssScroll 50s linear infinite;
+            animation: rssScroll 55s linear infinite;
         }
 
         @keyframes rssScroll {
@@ -245,11 +246,12 @@
             font-size: 0.78rem;
             font-weight: 500;
             color: var(--text);
-            line-height: 1.3;
+            line-height: 1.35;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            font-family: 'Inter', 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
         }
 
         .news-meta {
@@ -258,7 +260,6 @@
             margin-top: 2px;
         }
 
-        /* Quote */
         .quote-box {
             flex: 1;
             display: flex;
@@ -430,11 +431,10 @@
     </div>
 
     <script>
-        // ========== GLOBAL ==========
         const hlsInstances = {};
         const subtitleEnabled = { 1: false, 2: false };
 
-        // ========== CLOCK ==========
+        // CLOCK
         function updateClock() {
             const now = new Date();
             document.getElementById('clock-display').textContent =
@@ -445,43 +445,60 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // ========== WEATHER ==========
+        // WEATHER (Current + short-term outlook)
         function fetchWeather() {
             fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en')
                 .then(r => r.json())
                 .then(d => {
                     if (d.temperature?.data?.[0]) {
                         const temp = d.temperature.data[0].value;
-                        const hum = d.humidity?.data?.[0]?.value ? `  ${d.humidity.data[0].value}%` : '';
-                        document.getElementById('weather-banner').textContent = `${temp}°C${hum}  Hong Kong`;
+                        const hum = d.humidity?.data?.[0]?.value ? ` ${d.humidity.data[0].value}%` : '';
+
+                        fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=en')
+                            .then(r2 => r2.json())
+                            .then(f => {
+                                let outlook = '';
+                                if (f.forecastDesc) {
+                                    outlook = f.forecastDesc.split('.')[0] + '.';
+                                    if (outlook.length > 55) outlook = outlook.substring(0, 52) + '...';
+                                }
+                                document.getElementById('weather-banner').textContent =
+                                    `${temp}°C${hum}  ·  ${outlook || 'Hong Kong'}`;
+                            })
+                            .catch(() => {
+                                document.getElementById('weather-banner').textContent = `${temp}°C${hum}  Hong Kong`;
+                            });
                     }
-                }).catch(() => {});
+                })
+                .catch(() => {});
         }
         fetchWeather();
         setInterval(fetchWeather, 600000);
 
-        // ========== RSS ==========
+        // RSS (English + Hong Kong Traditional Chinese)
         async function fetchRSSNews() {
             const feeds = [
-                'http://feeds.bbci.co.uk/news/world/rss.xml',
-                'http://feeds.bbci.co.uk/sport/rss.xml'
+                { url: 'http://feeds.bbci.co.uk/news/world/rss.xml', src: 'WORLD' },
+                { url: 'http://feeds.bbci.co.uk/sport/rss.xml', src: 'SPORT' },
+                { url: 'https://rthk.hk/rthk/news/rss/c_expressnews_clocal.xml', src: '香港' },
+                { url: 'https://rthk.hk/rthk/news/rss/c_expressnews_cinternational.xml', src: '國際' }
             ];
+
             let allItems = [];
 
             for (const feed of feeds) {
                 try {
-                    const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed));
+                    const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url));
                     const data = await res.json();
                     if (data.status === 'ok' && data.items) {
-                        const src = feed.includes('sport') ? 'SPORT' : 'WORLD';
-                        data.items.slice(0, 7).forEach(item => {
-                            allItems.push({ title: item.title, src });
+                        data.items.slice(0, 8).forEach(item => {
+                            allItems.push({ title: item.title, src: feed.src });
                         });
                     }
                 } catch(e) {}
             }
 
-            allItems = allItems.sort(() => Math.random() - 0.5).slice(0, 14);
+            allItems = allItems.sort(() => Math.random() - 0.5).slice(0, 20);
 
             const track = document.getElementById('rss-track');
             track.innerHTML = '';
@@ -503,7 +520,7 @@
         fetchRSSNews();
         setInterval(fetchRSSNews, 180000);
 
-        // ========== QUOTES ==========
+        // QUOTES
         const inspirations = [
             { cat: "STRATEGY", text: "Prospecting is a muscle. The more you use it, the easier closing becomes.", author: "Sales Playbook" },
             { cat: "DISCIPLINE", text: "Quality is not an act, it is a habit.", author: "Aristotle" },
@@ -522,7 +539,7 @@
         }
         setInterval(rotateInspiration, 12000);
 
-        // ========== MARKET TICKER ==========
+        // MARKET TICKER
         const HK = [
             { s: '0700.HK', n: 'Tencent', fallback: '380.20', chg: '+1.42' },
             { s: '9988.HK', n: 'Alibaba', fallback: '82.50', chg: '+0.85' },
@@ -601,7 +618,7 @@
         updateTicker();
         setInterval(updateTicker, 60000);
 
-        // ========== STREAMS + SUBTITLES ==========
+        // STREAMS + SUBTITLES
         function loadStream(id, url, btnId) {
             const el = document.getElementById(id);
             const btn = document.getElementById(btnId);
@@ -611,7 +628,6 @@
                 const hls = new Hls({
                     manifestLoadingTimeOut: 15000,
                     enableWorker: true,
-                    // Enable subtitle support
                     enableWebVTT: true,
                     enableIMSC1: true,
                     enableCEA708Captions: true
@@ -625,13 +641,11 @@
                     el.play().catch(() => {});
                 });
 
-                // Check for subtitle tracks
                 hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, () => {
                     if (hls.subtitleTracks && hls.subtitleTracks.length > 0) {
                         btn.classList.remove('disabled');
                         btn.textContent = 'CC';
-                        // Auto select first track but keep disabled until user clicks
-                        hls.subtitleTrack = -1; // off by default
+                        hls.subtitleTrack = -1;
                     } else {
                         btn.classList.add('disabled');
                         btn.textContent = 'No CC';
@@ -658,7 +672,6 @@
             subtitleEnabled[num] = !subtitleEnabled[num];
 
             if (subtitleEnabled[num]) {
-                // Turn on first available subtitle track
                 if (hls.subtitleTracks.length > 0) {
                     hls.subtitleTrack = 0;
                     btn.classList.add('active');
@@ -676,7 +689,7 @@
             loadStream('tv-2', 'https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index_5.m3u8', 'cc-btn-2');
         });
 
-        // ========== AUTO FOCUS CYCLE ==========
+        // AUTO FOCUS CYCLE
         const mainArea = document.getElementById('main-area');
 
         function setFocusMode(mode) {
